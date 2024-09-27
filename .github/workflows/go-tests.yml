@@ -1,3 +1,6 @@
+# Copyright (c) 2024 Zededa, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 ---
 name: Go Tests
 on:  # yamllint disable-line rule:truthy
@@ -24,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
       - name: Test
         run: |
           make test
