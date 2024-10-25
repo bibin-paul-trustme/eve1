@@ -8,8 +8,12 @@ import (
 )
 
 const (
-	// DevPrefix - device log file prefix string
+	// DevPrefix - general file prefix string for device log files
 	DevPrefix = "dev.log."
+	// DevPrefixUpload - file prefix string for device log files to upload
+	DevPrefixUpload = "dev.log.upload."
+	// DevPrefixKeep - file prefix string for device log files to keep on device
+	DevPrefixKeep = "dev.log.keep."
 	// AppPrefix - app log file prefix string
 	AppPrefix = "app."
 	// AppSuffix - app log file suffix string, the appuuid is between the AppPrefix and AppSuffix
