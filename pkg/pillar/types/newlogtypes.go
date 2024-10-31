@@ -22,11 +22,12 @@ const (
 
 type logfileMetrics struct {
 	// from newlogd
-	NumGZipFilesSent  uint64 // total gzip files uploaded
-	NumGZipBytesWrite uint64 // total gzip log in bytes
-	NumBytesWrite     uint64 // total log bytes write to file before gzip
-	NumGzipFileInDir  uint32 // current number of gzip files remain
-	NumInputEvent     uint64 // total event input from log source
+	NumGZipFilesSent   uint64    // total gzip files uploaded
+	NumGZipBytesWrite  uint64    // total gzip log in bytes
+	NumBytesWrite      uint64    // total log bytes write to file before gzip
+	NumGzipFileInDir   uint32    // current number of gzip files remain
+	NumInputEvent      uint64    // total event input from log source
+	LatestAvailableLog time.Time // latest log timestamp available on device
 	// from loguploader
 	NumGZipFileRetry      uint64    // total gzip file upload retries
 	NumGZipFileKeptLocal  uint32    // total gzip file upload 4xx failure and kept on device
@@ -69,6 +70,7 @@ type NewlogMetrics struct {
 	NumKmessages          uint64            // total input kmessages
 	NumSyslogMessages     uint64            // total input syslog message
 	DevTop10InputBytesPCT map[string]uint32 // top 10 sources device log input in percentage
+	TotalSizeLogs         uint64            // total size of logs on device
 
 	// upload latency
 	Latency cloudDelay
