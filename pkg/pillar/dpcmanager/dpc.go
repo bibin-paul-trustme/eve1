@@ -31,6 +31,12 @@ func (m *DpcManager) doAddDPC(ctx context.Context, dpc types.DevicePortConfig) {
 			"will be ignored", dpc.Key)
 	}
 
+	// always delete the existing manual DPC regardless of its time priority
+	// there can be only one!
+	if dpc.Key == ManualDPCKey {
+		m.removeDPC(dpc, true)
+	}
+
 	// XXX really need to know whether anything with current or lower
 	// index has changed. We don't care about inserts at the end of the list.
 	configChanged := m.updateDPCListAndPublish(dpc, false)
@@ -81,7 +87,7 @@ func (m *DpcManager) updateDPCListAndPublish(
 		}
 		m.Log.Functionf("updateDPCListAndPublish: Delete. "+
 			"oldCOnfig %+v found: %+v\n", *oldConfig, dpc)
-		m.removeDPC(*oldConfig)
+		m.removeDPC(*oldConfig, false)
 	} else if oldConfig != nil {
 		// Compare everything but TimePriority since that is
 		// modified by zedagent even if there are no changes.
@@ -152,7 +158,7 @@ func (m *DpcManager) updateDPC(
 	newDpc.TestResults = oldDpc.TestResults
 	newDpc.LastIPAndDNS = oldDpc.LastIPAndDNS
 	m.Log.Functionf("updateDPC: diff time remove+add %+v\n", newDpc)
-	m.removeDPC(*oldDpc)
+	m.removeDPC(*oldDpc, false)
 	m.insertDPC(newDpc)
 }
 
@@ -176,12 +182,12 @@ func (m *DpcManager) insertDPC(dpc types.DevicePortConfig) {
 }
 
 // Remove by matching TimePriority and Key
-func (m *DpcManager) removeDPC(dpc types.DevicePortConfig) {
+func (m *DpcManager) removeDPC(dpc types.DevicePortConfig, keyOnly bool) {
 	var newConfig []types.DevicePortConfig
 	removed := false
 	for _, port := range m.dpcList.PortConfigList {
-		if !removed && dpc.TimePriority == port.TimePriority && dpc.Key == port.Key {
-			m.Log.Functionf("removeDPC: found %+v for %+v\n", port, dpc)
+		if !removed && ((dpc.TimePriority == port.TimePriority) || keyOnly) && dpc.Key == port.Key {
+			m.Log.Noticef("removeDPC: found %+v for %+v\n", port, dpc)
 			removed = true
 		} else {
 			newConfig = append(newConfig, port)
@@ -320,7 +326,7 @@ func (m *DpcManager) compressDPCL() {
 				i, dpc)
 		} else {
 			// Retain the lastresort if enabled. Delete everything else.
-			if dpc.Key == LastResortKey && m.enableLastResort {
+			if (dpc.Key == LastResortKey && m.enableLastResort) || (dpc.Key == ManualDPCKey) {
 				m.Log.Tracef("compressDPCL: Retaining last resort. i = %d, dpc: %+v",
 					i, dpc)
 				newConfig = append(newConfig, dpc)
