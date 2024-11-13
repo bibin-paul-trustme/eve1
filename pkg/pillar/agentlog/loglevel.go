@@ -39,7 +39,7 @@ func getLogLevelImpl(log *base.LogObject, sub pubsub.Subscription, agentName str
 
 	m, err := sub.Get("global")
 	if err != nil {
-		log.Errorf("GetLogLevel- failed to get global. Err: %s", err)
+		log.Errorf("getLogLevelImpl: failed to get global. Err: %s", err)
 		return "", false, false
 	}
 	gc := m.(types.ConfigItemValueMap)
